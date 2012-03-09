@@ -1,5 +1,4 @@
 require "splinter/version"
 
-module Splinter
-  # Your code goes here...
-end
+# only allow this to be run under rails for the time being.
+require "splinter/splinter.rb" if defined? Rails
