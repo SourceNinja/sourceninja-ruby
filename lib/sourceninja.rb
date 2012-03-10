@@ -1,4 +1,4 @@
-require "splinter/version"
+require "sourceninja/version"
 
 # only allow this to be run under rails for the time being.
-require "splinter/splinter.rb" if defined? Rails
+require "sourceninja/sourceninja.rb" if defined? Rails
