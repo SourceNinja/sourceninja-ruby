@@ -1,3 +1,3 @@
-module Splinter
+module Sourceninja
   VERSION = "0.0.1"
 end
