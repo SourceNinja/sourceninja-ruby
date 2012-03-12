@@ -5,7 +5,7 @@ module Sourceninja
   class Sourceninja
     include HTTParty
 
-    @@base_uri = "http://localhost:3000"
+    @@base_uri = "http://www.sourceninja.com/rubygems/1_0"
 
     def self.send_package_info
       Rails.logger.debug "Sourceninja: Attempting to send package information to SourceNinja"
@@ -28,6 +28,11 @@ module Sourceninja
           next
         end
         package_data << { :package_name => key, :package_version => $1 }
+      end
+
+      if package_data.empty?
+        Rails.logger.info "Sourceninja: Did not successfully parse any packages, will not attempt to upload information"
+        return
       end
 
       params = { :id => ENV['SOURCENINJA_PRODUCT_ID'], :token => ENV['SOURCENINJA_TOKEN'], :package_info => { :package_details => package_data}.to_json }
