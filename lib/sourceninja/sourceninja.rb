@@ -10,6 +10,13 @@ module Sourceninja
     def self.send_package_info
       Rails.logger.debug "Sourceninja: Attempting to send package information to SourceNinja"
 
+      base_uri = @@base_uri
+
+      if not ENV['SOURCENINJA_UPLOAD_URL'].nil? and ENV['SOURCENINJA_UPLOAD_URL'] != ""
+        Rails.logger.debug "Sourceninja: using #{ENV['SOURCENINJA_UPLOAD_URL']} for the upload URI"
+        base_uri = ENV['SOURCENINJA_UPLOAD_URL']
+      end
+
       if ENV['SOURCENINJA_TOKEN'].nil? or ENV['SOURCENINJA_TOKEN'] == ""
         Rails.logger.debug "Sourceninja: No SOURCENINJA_TOKEN set, not uploading information to SourceNinja"
         return
@@ -37,7 +44,7 @@ module Sourceninja
 
       params = { :id => ENV['SOURCENINJA_PRODUCT_ID'], :token => ENV['SOURCENINJA_TOKEN'], :package_info => { :package_details => package_data}.to_json }
       Rails.logger.debug "Sourceninja: Attempting to send package_info of #{params.to_s}"
-      response = HTTParty.post([@@base_uri,'/rubygems/1_0'].join('/'), :body => params )
+      response = HTTParty.post([base_uri,'/rubygems/1_0'].join('/'), :body => params )
       Rails.logger.debug "Sourceninja: Got back status #{response.code}"
      end
   end
