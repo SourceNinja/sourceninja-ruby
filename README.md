@@ -27,13 +27,13 @@ Before you can do anything with the sourceninja gem, you'll need to create your 
 
 Once your create a product, you will be directed to a page asking what language your application is running. Select `Rails` from the menu on the left side. You will be presented with two keys that you will need for the rest of the installation.
 
-You will then need to setup two environement variables in production, `ENV["SOURCENINJA_TOKEN"]` and `ENV["SOURCENINJA_PRODUCT_ID"]`. You could set these up in a configuration file that is only used in production, however, that is not suggested. You should setup the enviornement variables according to your hosting documentation.
+You will then need to setup two environment variables in production, `ENV["SOURCENINJA_TOKEN"]` and `ENV["SOURCENINJA_PRODUCT_ID"]`. You could set these up in a configuration file that is only used in production, however, that is not suggested. You should setup the environment variables according to your hosting documentation.
 
 Updated Magically in Production
 -----------------
 Now each time you push to production the sourceninja gem will be run and data will be populated back to SourceNinja. If you visit your SourceNinja page you will be given a list of outdated gems.
 
-The sourceninja data is populated whenever the app is initilized.
+The sourceninja data is populated whenever the app is initialized.
 
 Testing Locally
 ---------------
@@ -45,7 +45,7 @@ If you would like to test sourceninja gem locally, you will want to create an in
 
 Upon doing this, each time you start the rails server locally the data will be pushed. 
 
-You could also use these steps if you want to manage a production instance and a developement instance.
+You could also use these steps if you want to manage a production instance and a development instance.
 
 Support
 -------
