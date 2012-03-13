@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 require "sourceninja/version"
 
 Gem::Specification.new do |s|
-  s.name        = "sourceninja-ruby"
+  s.name        = "sourceninja"
   s.version     = Sourceninja::VERSION
   s.authors     = ["SourceNinja"]
   s.email       = ["support@sourceninja.com"]
