@@ -5,7 +5,7 @@ module Sourceninja
   class Sourceninja
     include HTTParty
 
-    @@base_uri = "http://apps.sourceninja.com"
+    @@base_uri = "http://app.sourceninja.com"
 
     def self.send_package_info
       Rails.logger.debug "Sourceninja: Attempting to send package information to SourceNinja"
