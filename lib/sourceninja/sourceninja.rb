@@ -5,7 +5,7 @@ module Sourceninja
   class Sourceninja
     include HTTParty
 
-    @@base_uri = "http://www.sourceninja.com"
+    @@base_uri = "http://apps.sourceninja.com"
 
     def self.send_package_info
       Rails.logger.debug "Sourceninja: Attempting to send package information to SourceNinja"
@@ -43,7 +43,7 @@ module Sourceninja
       end
 
       params = { :id => ENV['SOURCENINJA_PRODUCT_ID'], :token => ENV['SOURCENINJA_TOKEN'], :package_info => { :package_details => package_data}.to_json }
-      Rails.logger.debug "Sourceninja: Attempting to send package_info of #{params.to_s}"
+      Rails.logger.debug "Sourceninja: Attempting to send package_info of #{params.to_s} to #{[base_uri,'rubygems/1_0'].join('/')}"
       response = HTTParty.post([base_uri,'rubygems/1_0'].join('/'), :body => params )
       Rails.logger.debug "Sourceninja: Got back status #{response.code}"
      end
