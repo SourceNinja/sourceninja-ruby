@@ -1,7 +1,6 @@
 Note
 ----
 * This gem is currently alpha. __You need to be invited to [SourceNinja Alpha](http://www.sourceninja.com/sign-up.html) in order to use this gem__.
-* If you are using Heroku, please refer to the [Heroku Documentationn](heroku-addon) and please ignore this documentation.
 
 What is SourceNinja
 -------------------
