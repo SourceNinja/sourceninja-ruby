@@ -27,6 +27,18 @@ module Sourceninja
         return
       end
 
+      # all we need in the dep list is the name of the module. the version number here won't be important because
+      # Bundler will resolve that into the spec list above
+      dep_list = {}
+      Bundler.environment.dependencies.to_a.map{|b| b.to_s}.each do |dep|
+        unless %r{^\s*(\S+)} =~ dep
+          Rails.logger.info "Sourceninja: Could not find the package name for #{dep.to_s}"
+          next
+        end
+
+        dep_list[$1] = true
+      end
+
       package_data = []
       spec_hash = Bundler.environment.specs.to_hash
       spec_hash.keys.each do |key|
@@ -34,7 +46,7 @@ module Sourceninja
           Rails.logger.info "Sourceninja: Could not parse information for gem #{key}: #{spec_hash[key]}"
           next
         end
-        package_data << { :package_name => key, :package_version => $1 }
+        package_data << { :package_name => key, :package_version => $1, :direct_requirement => (dep_list[key] || false) }
       end
 
       if package_data.empty?
