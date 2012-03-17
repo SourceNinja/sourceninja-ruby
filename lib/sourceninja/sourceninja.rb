@@ -28,7 +28,7 @@ module Sourceninja
       end
 
       # all we need in the dep list is the name of the module. the version number here won't be important because
-      # Bundler will resolve that into the spec list above
+      # Bundler will resolve that into the spec list below
       dep_list = {}
       Bundler.environment.dependencies.to_a.map{|b| b.to_s}.each do |dep|
         unless %r{^\s*(\S+)} =~ dep
