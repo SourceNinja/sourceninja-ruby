@@ -28,7 +28,7 @@ Getting Started
 
 5. Install the [sourceninja gem](http://github.com/SourceNinja/sourceninja-ruby). You can do this by adding the following line to your Gemfile.
     ```
-    gem "sourceninja", "~> 0.0.6"
+    gem "sourceninja", "~> 0.0.7"
     ```
 
 6. Run `bundle install`.
