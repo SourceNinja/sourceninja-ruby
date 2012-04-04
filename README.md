@@ -1,3 +1,6 @@
+[![Dependency Status](https://app.sourceninja.com/status/a78ca9a5-0a4a-4764-8639-87cc5a41948e.png)](https://app.sourceninja.com/products/a78ca9a5-0a4a-4764-8639-87cc5a41948e)
+
+
 Note
 ----
 * This gem is currently alpha. __You need to be invited to [SourceNinja Alpha](http://www.sourceninja.com/sign-up.html) in order to use this gem__.
