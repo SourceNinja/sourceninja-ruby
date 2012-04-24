@@ -46,11 +46,13 @@ optparse.parse!
 
 unless ENV["SOURCENINJA_PRODUCT_ID"] and ENV["SOURCENINJA_TOKEN"]
   $stderr.puts "You must supply a token and product ID! Exiting."
+  puts optparse.help
   exit
 end
 
 unless File::exists? options['file_to_process']
   $stderr.puts "Filename #{options['file_to_process']} not found! Exiting."
+  puts optparse.help
   exit
 end
 
