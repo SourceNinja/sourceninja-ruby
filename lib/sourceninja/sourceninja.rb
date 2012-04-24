@@ -7,31 +7,12 @@ module Sourceninja
 
     @@base_uri = "https://app.sourceninja.com"
 
-    def self.send_package_info
-      Rails.logger.debug "Sourceninja: Attempting to send package information to SourceNinja"
-
-      base_uri = @@base_uri
-
-      if not ENV['SOURCENINJA_UPLOAD_URL'].nil? and ENV['SOURCENINJA_UPLOAD_URL'] != ""
-        Rails.logger.debug "Sourceninja: using #{ENV['SOURCENINJA_UPLOAD_URL']} for the upload URI"
-        base_uri = ENV['SOURCENINJA_UPLOAD_URL']
-      end
-
-      if ENV['SOURCENINJA_TOKEN'].nil? or ENV['SOURCENINJA_TOKEN'] == ""
-        Rails.logger.debug "Sourceninja: No SOURCENINJA_TOKEN set, not uploading information to SourceNinja"
-        return
-      end
-
-      if ENV['SOURCENINJA_PRODUCT_ID'].nil? or ENV['SOURCENINJA_PRODUCT_ID'] == ""
-        Rails.logger.debug "Sourceninja: No SOURCENINJA_PRODUCT_ID set, not uploading information to SourceNinja"
-        return
-      end
-
+    def self.process_bundle_info
       # all we need in the dep list is the name of the module. the version number here won't be important because
       # Bundler will resolve that into the spec list below
       dep_list = {}
       Bundler.environment.dependencies.to_a.map{|b| b.to_s}.each do |dep|
-        unless %r{^\s*(\S+)} =~ dep
+        unless dep =~ %r{^\s*(\S+)}
           Rails.logger.info "Sourceninja: Could not find the package name for #{dep.to_s}"
           next
         end
@@ -54,7 +35,30 @@ module Sourceninja
         return
       end
 
-      params = { :id => ENV['SOURCENINJA_PRODUCT_ID'], :token => ENV['SOURCENINJA_TOKEN'], :package_info => { :package_details => package_data}.to_json }
+      package_data
+    end
+
+    def self.send_package_info(package_data_hash)
+      Rails.logger.debug "Sourceninja: Attempting to send package information to SourceNinja"
+
+      base_uri = @@base_uri
+
+      if not ENV['SOURCENINJA_UPLOAD_URL'].nil? and ENV['SOURCENINJA_UPLOAD_URL'] != ""
+        Rails.logger.debug "Sourceninja: using #{ENV['SOURCENINJA_UPLOAD_URL']} for the upload URI"
+        base_uri = ENV['SOURCENINJA_UPLOAD_URL']
+      end
+
+      if ENV['SOURCENINJA_TOKEN'].nil? or ENV['SOURCENINJA_TOKEN'] == ""
+        Rails.logger.debug "Sourceninja: No SOURCENINJA_TOKEN set, not uploading information to SourceNinja"
+        return
+      end
+
+      if ENV['SOURCENINJA_PRODUCT_ID'].nil? or ENV['SOURCENINJA_PRODUCT_ID'] == ""
+        Rails.logger.debug "Sourceninja: No SOURCENINJA_PRODUCT_ID set, not uploading information to SourceNinja"
+        return
+      end
+
+      params = { :id => ENV['SOURCENINJA_PRODUCT_ID'], :token => ENV['SOURCENINJA_TOKEN'], :package_info => { :package_details => package_data_hash }.to_json }
       Rails.logger.debug "Sourceninja: Attempting to send package_info of #{params.to_s} to #{[base_uri,'rubygems/1_0'].join('/')}"
       response = HTTParty.post([base_uri,'rubygems/1_0'].join('/'), :body => params )
       Rails.logger.debug "Sourceninja: Got back status #{response.code}"
@@ -63,7 +67,8 @@ module Sourceninja
 
   class RailTie < Rails::Railtie
     ActiveSupport.on_load(:after_initialize) do
-      Sourceninja.send_package_info
+      package_data = Sourceninja.process_bundle_info
+      Sourceninja.send_package_info(package_data)
     end
   end
 end
