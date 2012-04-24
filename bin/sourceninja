@@ -1,6 +1,93 @@
 #!/usr/bin/env ruby
 
 require 'sourceninja'
+require 'bundler'
+require 'optparse'
 
-package_data = Sourceninja.process_bundle_info
-Sourceninja.send_package_info(package_data)
+DEFAULT_FILE_TO_PROCESS = './Gemfile.lock'
+
+# This hash will hold all of the options
+# parsed from the command-line by
+# OptionParser.
+options = { 'file_to_process' => DEFAULT_FILE_TO_PROCESS }
+
+optparse = OptionParser.new do|opts|
+  # Set a banner, displayed at the top
+  # of the help screen.
+  opts.banner = "Usage: sourceninja -t <sourceninja_account_token> -p <sourceninja_product_id> [-f Gemfile.lock]"
+
+  # Define the options, and what they do
+  opts.on( '-f', '--filename FILE', 'Gemfile.lock file to process') do |filename|
+    options['file_to_process'] = filename
+  end
+
+  # This displays the help screen
+  opts.on( '-h', '--help', 'Display this screen' ) do
+    puts opts
+    exit
+  end
+
+  opts.on( '-p', '--product_id PRODUCT_ID', 'SourceNinja Product ID' ) do |product_id|
+    ENV["SOURCENINJA_PRODUCT_ID"] = product_id
+  end
+
+  opts.on( '-t', '--token TOKEN', 'SourceNinja API Key Token' ) do |token|
+    ENV["SOURCENINJA_TOKEN"] = token
+  end
+
+  options[:verbose] = false
+  opts.on( '-v', '--verbose', 'Output more information' ) do
+    options[:verbose] = true
+  end
+end
+
+# Actually parse the command line
+optparse.parse!
+
+unless ENV["SOURCENINJA_PRODUCT_ID"] and ENV["SOURCENINJA_TOKEN"]
+  $stderr.puts "You must supply a token and product ID! Exiting."
+  exit
+end
+
+unless File::exists? options['file_to_process']
+  $stderr.puts "Filename #{options['file_to_process']} not found! Exiting."
+  exit
+end
+
+lockfile = Bundler::LockfileParser.new(Bundler.read_file(options['file_to_process']))
+
+# all we need in the dep list is the name of the module. the version number here won't be important because
+# Bundler will resolve that into the spec list below
+dep_list = {}
+lockfile.dependencies.to_a.map{|b| b.to_s}.each do |dep|
+  puts "Sourceninja: processing dependency #{dep}" if options[:verbose]
+  unless dep =~ %r{^\s*(\S+)}
+    $stderr.puts "Sourceninja: Could not find the package name for #{dep.to_s}"
+    next
+  end
+
+  dep_list[$1] = true
+end
+
+package_data = []
+lockfile.specs.each do |spec|
+  #  Data looks like 'sourceninja (0.0.8)'
+  unless spec.to_s =~ %r{^(\S+)\s*\((\S+)\)$}
+    $stderr.puts "Sourceninja: Could not parse information for gem '#{spec}' (class #{spec.class.to_s})"
+    next
+  end
+
+  puts "Sourceninja: found gem #{$1} with a version of #{$2}" if options[:verbose]
+
+  package_data << { :package_name => $1, :package_version => $2, :direct_requirement => (dep_list[$1] || false) }
+end
+
+if package_data.empty?
+  $stderr.puts "Sourceninja: Did not successfully parse any packages, will not attempt to upload information"
+elsif options[:verbose]
+  puts "Package data: #{package_data.to_s}"
+end
+
+puts "Sending package information to SourceNinja..." if options[:verbose]
+Sourceninja.send_package_info package_data
+puts "Done." if options[:verbose]
