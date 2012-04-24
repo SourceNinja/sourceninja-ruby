@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require 'sourceninja'
+
+package_data = Sourceninja.process_bundle_info
+Sourceninja.send_package_info(package_data)
