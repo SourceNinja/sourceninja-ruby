@@ -2,7 +2,6 @@ require 'httparty'
 require 'json'
 
 module Sourceninja
-  class Sourceninja
     include HTTParty
 
     @@base_uri = "https://app.sourceninja.com"
@@ -62,13 +61,5 @@ module Sourceninja
       Rails.logger.debug "Sourceninja: Attempting to send package_info of #{params.to_s} to #{[base_uri,'rubygems/1_0'].join('/')}"
       response = HTTParty.post([base_uri,'rubygems/1_0'].join('/'), :body => params )
       Rails.logger.debug "Sourceninja: Got back status #{response.code}"
-     end
-  end
-
-  class RailTie < Rails::Railtie
-    ActiveSupport.on_load(:after_initialize) do
-      package_data = Sourceninja.process_bundle_info
-      Sourceninja.send_package_info(package_data)
     end
-  end
 end
