@@ -1,10 +1,10 @@
-What is SourceNinja
+What is SourceNinja?
 -------------------
 SourceNinja is an awesome service that allows you to stay informed of updates to the open source packages that your application uses. When a newer version of a package is released, SourceNinja alerts you and gives you actionable information to help you determine whether you should upgrade to the newer package.
 
 Visit [SourceNinja](http://sourceninja.com) to learn more.
 
-What is the sourceninja gem
+What is the sourceninja gem?
 ---------------------------
 The sourceninja gem is a gem that can be included in your rails application to allow seamless integration with SourceNinja. The sourceninja gem will send all of your gem files and versions to SourceNinja to begin managing your open source libraries.
 
@@ -57,13 +57,14 @@ Non-Rails environment
 1. Included in the gem is a script, ```sourceninja```, that you may run to have it upload information to SourceNinja directly from your Gemfile.lock.
 2. You will need the ```SOURCENINJA_TOKEN``` and ```SOURCENINJA_PRODUCT_ID``` values from step 4, above.
 3. Run the script with ```-h``` to see this output:
-
+    ```
     Usage: sourceninja -t <sourceninja_account_token> -p <sourceninja_product_id> [-f Gemfile.lock]
         -f, --filename FILE              Gemfile.lock file to process
         -h, --help                       Display this screen
         -p, --product_id PRODUCT_ID      SourceNinja Product ID
         -t, --token TOKEN                SourceNinja API Key Token
         -v, --verbose                    Output more information
+    ```
 
 4. Now you can login to your SourceNinja account and review your project's information.
 
