@@ -6,7 +6,7 @@ Visit [SourceNinja](http://sourceninja.com) to learn more.
 
 What is the sourceninja gem?
 ---------------------------
-The sourceninja gem is a gem that can be included in your rails application to allow seamless integration with SourceNinja. The sourceninja gem will send all of your gem files and versions to SourceNinja to begin managing your open source libraries.
+The sourceninja gem is a gem that can be included in your Rails application to allow seamless integration with SourceNinja. The sourceninja gem will send SourceNinja the list of the gem names and gem versions that you are using to begin managing your open source libraries.
 
 In a non-Rails environment, a script is included for processing a Gemfile.lock and uploading it to SourceNinja.
 
@@ -65,8 +65,9 @@ Non-Rails environment
         -t, --token TOKEN                SourceNinja API Key Token
         -v, --verbose                    Output more information
     ```
+4. Run the script using ```-p```, ```-f```, and ```-t``` to pass along the correct configuration information to SourceNinja.
 
-4. Now you can login to your SourceNinja account and review your project's information.
+5. Now you can login to your SourceNinja account and review your project's information.
 
 Support
 -------
