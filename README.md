@@ -12,7 +12,7 @@ In a non-Rails environment, a script is included for processing a Gemfile.lock a
 
 Getting Started
 ---------------
-1. Create a [SourceNinja](http://www.sourceninja.com/plans) account.
+1. Create a [SourceNinja](https://app.sourceninja.com/plans) account.
 
 2. Log into SourceNinja and create a product. The product you create will be paired with your application.
 
