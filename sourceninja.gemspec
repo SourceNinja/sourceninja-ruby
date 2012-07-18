@@ -18,4 +18,5 @@ Gem::Specification.new do |s|
 
   s.add_dependency "json"
   s.add_dependency "httparty"
+  s.add_development_dependency "rspec"
 end

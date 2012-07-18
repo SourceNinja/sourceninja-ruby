@@ -4,7 +4,15 @@ require 'json'
 module Sourceninja
   include HTTParty
 
-  @@base_uri = "https://app.sourceninja.com"
+  @@BASE_URI = "https://app.sourceninja.com/rubygems/1_0"
+
+  def self.log(msg)
+    if defined? Rails
+      Rails.logger.debug msg
+    else
+      $stderr.puts msg
+    end
+  end
 
   def self.process_bundle_info
     # all we need in the dep list is the name of the module. the version number here won't be important because
@@ -12,13 +20,9 @@ module Sourceninja
     dep_list = {}
     Bundler.environment.dependencies.to_a.map{|b| b.to_s}.each do |dep|
       unless dep =~ %r{^\s*(\S+)}
-        if defined? Rails
-          Rails.logger.info "Sourceninja: Could not find the package name for #{dep.to_s}"
-        end
-
+        log("Sourceninja: Could not find the package name for #{dep.to_s}")
         next
       end
-
       dep_list[$1] = true
     end
 
@@ -26,68 +30,51 @@ module Sourceninja
     spec_hash = Bundler.environment.specs.to_hash
     spec_hash.keys.each do |key|
       unless %r{Gem::Specification name=#{key} version=([\d.]+)} =~ spec_hash[key][0].to_s
-        if defined? Rails
-          Rails.logger.info "Sourceninja: Could not parse information for gem #{key}: #{spec_hash[key]}"
-        else
-          $stderr.puts "Sourceninja: Could not parse information for gem #{key}: #{spec_hash[key]}"
-        end
+        log("Sourceninja: Could not parse information for gem #{key}: #{spec_hash[key]}")
         next
       end
       package_data << { :package_name => key, :package_version => $1, :direct_requirement => (dep_list[key] || false) }
     end
 
     if package_data.empty?
-      if defined? Rails
-        Rails.logger.info "Sourceninja: Did not successfully parse any packages, will not attempt to upload information"
-      end
-
+      log("Sourceninja: Did not successfully parse any packages, will not attempt to upload information")
       return
     end
 
     package_data
   end
 
-  def self.send_package_info(package_data_hash)
-    if defined? Rails
-      Rails.logger.debug "Sourceninja: Attempting to send package information to SourceNinja"
+  def self.send_package_info(package_data_hash, options={})
+    defaults = {
+      :url => ENV['SOURCENINJA_UPLOAD_URL'] ? ENV['SOURCENINJA_UPLOAD_URL'] : @@BASE_URI,
+      :token => ENV['SOURCENINJA_TOKEN'],
+      :product_id => ENV['SOURCENINJA_PRODUCT_ID']
+    }
+    options = defaults.merge(options)
+
+    if options[:token].nil? or options[:token] == ""
+      log("Sourceninja: No token set, not uploading information to SourceNinja")
+      return false
     end
 
-    base_uri = @@base_uri
-
-    if not ENV['SOURCENINJA_UPLOAD_URL'].nil? and ENV['SOURCENINJA_UPLOAD_URL'] != ""
-      if defined? Rails
-        Rails.logger.debug "Sourceninja: using #{ENV['SOURCENINJA_UPLOAD_URL']} for the upload URI"
-      end
-
-      base_uri = ENV['SOURCENINJA_UPLOAD_URL']
+    if options[:product_id].nil? or options[:product_id] == ""
+      log("Sourceninja: No product ID set, not uploading information to SourceNinja")
+      return false
     end
 
-    if ENV['SOURCENINJA_TOKEN'].nil? or ENV['SOURCENINJA_TOKEN'] == ""
-      if defined? Rails
-        Rails.logger.debug "Sourceninja: No SOURCENINJA_TOKEN set, not uploading information to SourceNinja"
-      end
+    params = { :id => options[:product_id], :token => options[:token], :package_info => { :package_details => package_data_hash }.to_json }
+    # log("Sourceninja: Attempting to send package_info of #{params.to_s} to #{[options[:url],'rubygems/1_0'].join('/')}")
 
-      return
+    response = nil
+    begin
+      log("Sourceninja: Sending package information to SourceNinja")
+      response = HTTParty.post(options[:url], :body => params)
+    rescue Exception => e
+      log("Sourceninja: Error submitting data: #{e.message}")
+      return false
     end
 
-    if ENV['SOURCENINJA_PRODUCT_ID'].nil? or ENV['SOURCENINJA_PRODUCT_ID'] == ""
-      if defined? Rails
-        Rails.logger.debug "Sourceninja: No SOURCENINJA_PRODUCT_ID set, not uploading information to SourceNinja"
-      end
-
-      return
-    end
-
-    params = { :id => ENV['SOURCENINJA_PRODUCT_ID'], :token => ENV['SOURCENINJA_TOKEN'], :package_info => { :package_details => package_data_hash }.to_json }
-
-    if defined? Rails
-      Rails.logger.debug "Sourceninja: Attempting to send package_info of #{params.to_s} to #{[base_uri,'rubygems/1_0'].join('/')}"
-    end
-
-    response = HTTParty.post([base_uri,'rubygems/1_0'].join('/'), :body => params )
-
-    if defined? Rails
-      Rails.logger.debug "Sourceninja: Got back status #{response.code}"
-    end
+    log("Sourceninja: Received status #{response.code}")
+    return response.code == 200
   end
 end
