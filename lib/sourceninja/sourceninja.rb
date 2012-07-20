@@ -8,7 +8,7 @@ module Sourceninja
 
   def self.log(msg)
     if defined? Rails
-      Rails.logger.debug msg
+      Rails.logger.info msg
     else
       $stderr.puts msg
     end
